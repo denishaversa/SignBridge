@@ -1,155 +1,274 @@
-# 🤟 SignBridge — ASL to Text in Your Browser
+# 🤟 SignBridge — Accessible Interview Platform
 
-A real-time American Sign Language (ASL) to text translator that runs entirely in your browser. Uses your webcam with MediaPipe hand tracking and a lightweight gesture classifier to recognize signs and build a live transcript.
+**SignBridge** is a real-time, browser-based video interview platform designed to bridge communication between **deaf/hard-of-hearing candidates** (using ASL) and **hearing recruiters** (using speech). It provides live ASL gesture recognition, speech-to-text transcription, and text chat — all within a single accessible web application.
 
-**No server required. No sign-up. No data leaves your device.**
+> **No installation required.** SignBridge runs entirely in the browser as a single `index.html` file with zero backend dependencies for the core experience.
+
+---
+
+## 🔍 Problem Statement
+
+Traditional video interview platforms lack built-in support for deaf and hard-of-hearing users. Candidates who communicate through sign language face significant barriers when interviewing with hearing recruiters, often requiring third-party interpreters or workarounds that disrupt the natural flow of conversation.
+
+### Key Gaps Addressed
+
+- **No real-time ASL recognition** in existing video call platforms
+- **No integrated speech-to-text** visible to both participants during interviews
+- **No fallback communication channel** when audio/video fails
+- **Poor accessibility defaults** (contrast, text size, keyboard navigation)
+
+---
 
 ## ✨ Features
 
-- **Real-time hand tracking** — MediaPipe Hands draws a skeletal overlay on your hand at 30+ FPS
-- **10 built-in ASL signs** — Hello, Thank You, Yes, No, Please, Sorry, Help, I Love You, Good, Stop
-- **Train custom signs** — record any gesture from your webcam to teach new signs
-- **Calibrate existing signs** — improve accuracy by recording your version of built-in signs
-- **Export / Import training data** — share trained models between devices or collaborate with others
-- **Text-to-speech** — speak your transcript aloud with one click
-- **Copy to clipboard** — quickly paste your translated text anywhere
-- **Two detection modes** — "Always Top Prediction" for responsiveness or "55% Threshold" for accuracy
-- **Demo mode** — try the interface without a camera by clicking signs in the sidebar
-- **Zero dependencies** — no TensorFlow, no Python, no server. One HTML file.
+### Core Communication
 
-## 🚀 Quick Start
+- **Real-Time ASL Translation** — Uses MediaPipe hand-tracking + a custom gesture classifier to recognize ASL signs and display them as text with confidence scores
+- **Speech-to-Text (STT)** — Leverages the Web Speech API to transcribe recruiter speech into live text captions
+- **Text Chat Fallback** — Full text chat available anytime via button or keyboard shortcut (`Ctrl+Shift+C`)
+- **Unified Transcript Panel** — All communication (ASL, STT, chat) appears in a single, scrollable transcript with timestamps and confidence badges
 
-### Option 1: Live Demo (recommended)
+### Video Calling
 
-Visit the deployed site on Netlify — webcam works over HTTPS with no setup:
+- **Peer-to-Peer WebRTC** — Direct video/audio connection via PeerJS (no media server required)
+- **Meeting Link System** — Recruiters generate a unique meeting code; candidates join via a shareable URL (`?code=XXXXXXXX`)
+- **Camera/Mic Controls** — Toggle camera and microphone independently with real-time status sync to the other participant
+- **Lobby with Preview** — Pre-call device check with live camera preview, mic/camera toggle, and name entry
 
-👉 [https://signbridgev1.netlify.app](https://signbridgev1.netlify.app/)
+### ASL Recognition Engine
 
-### Option 2: Local server
+- **10 Built-in Signs** — `Hello`, `Thank You`, `Yes`, `No`, `Please`, `Sorry`, `Help`, `I Love You`, `Good`, `Stop`
+- **12 Additional Custom Signs** — Available via the included pre-trained model (see [Pre-Trained ASL Model](#-pre-trained-asl-model)): `Name`, `G`, `I`, `T`, `A`, `My`, `You`, `Work`, `Article`, `Write`, `Three`, `Daily`
+- **Custom Model Upload** — Recruiters can upload any SignSpeak v3+ JSON model to add or replace custom signs
+- **Model Sync** — Custom models are automatically shared with the candidate via the peer connection
+- **Temporal Smoothing** — Sliding-window averaging over recent frames for more stable predictions
+- **Calibration Support** — Per-sign calibration samples for improved accuracy
+- **Confidence Overlay** — Real-time top-4 prediction display with confidence bars
 
-```bash
-# Clone the repo
-git clone https://github.com/denishaversa/signbridge.git
-cd signbridge
+### Accessibility
 
-# Serve locally (needed for webcam access)
-python3 -m http.server 8000
-```
+- **High Contrast Mode** — Toggle via accessibility panel
+- **Large Text Mode** — Adjustable font size
+- **Keyboard Shortcuts**:
+  - `Ctrl+Shift+V` — Toggle camera
+  - `Ctrl+Shift+M` — Toggle microphone
+  - `Ctrl+Shift+C` — Switch to text chat
+- **Focus-visible outlines** on all interactive elements
+- **ARIA-friendly** role cards with keyboard activation
 
-Then open [http://localhost:8000](http://localhost:8000) in Chrome or Edge.
+### UX & Session Management
 
-### Option 3: Open directly
+- **Guided Onboarding** — Step-by-step setup with role selection (Candidate/Recruiter), tutorial slides, and permission requests
+- **Recruiter-Controlled Start** — Only the recruiter can initiate the interview session
+- **Room Capacity Enforcement** — One candidate per session; additional joiners are blocked with a clear message
+- **Graceful Disconnection** — End-call overlay notifies the remaining participant, with session cleanup
+- **Connection Status Indicators** — Real-time badge showing connection state
+- **Feature Hints** — Contextual tips guiding users to enable ASL or STT features
 
-You can open `index.html` directly in your browser, but webcam access will be blocked. Use **Demo Mode** to explore the interface without a camera.
+---
 
-## 🖐️ Supported Signs
+## 🛠 Tech Stack
 
-| Sign | Gesture |
-|------|---------|
-| Hello | Open hand wave near forehead |
-| Thank You | Flat hand from chin outward |
-| Yes | Closed fist (nod motion) |
-| No | Index + middle finger snap to thumb |
-| Please | Flat hand circles on chest |
-| Sorry | Fist circles on chest |
-| Help | Fist on flat palm, lift up |
-| I Love You | 🤟 Thumb + index + pinky extended |
-| Good | Thumbs up |
-| Stop | Flat hand, palm facing out |
+| Layer | Technology |
+|---|---|
+| **Frontend** | Vanilla HTML/CSS/JavaScript (single-file SPA) |
+| **Video/Audio** | WebRTC via [PeerJS](https://peerjs.com/) v1.5.4 |
+| **Hand Tracking** | [MediaPipe Hands](https://google.github.io/mediapipe/solutions/hands) v0.4 |
+| **Speech-to-Text** | Web Speech API (`SpeechRecognition`) |
+| **Styling** | CSS Custom Properties (design tokens), responsive grid |
+| **Font** | [Nunito](https://fonts.google.com/specimen/Nunito) (UI) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (code/data) |
 
-## 🎓 Training Custom Signs
+---
 
-1. Click **Train Sign** in the controls bar
-2. Select **+ New Sign** tab and enter a name
-3. Hold your gesture in front of the camera
-4. Click **⏺ Start Recording** — hold for 3-5 seconds (aim for 30+ samples)
-5. Click **⏹ Stop Recording** → **Save**
-6. Your sign is immediately active in the classifier
+## 🚀 Getting Started
 
-## 🎯 Calibrating Existing Signs
+### Prerequisites
 
-If a built-in sign has low confidence for your hand/camera setup:
+- A modern browser with WebRTC support (Chrome recommended for full STT support)
+- Camera and microphone access
+- Internet connection (for PeerJS signaling server and CDN assets)
 
-1. Click **Train Sign** → select **🎯 Calibrate Existing** tab
-2. Pick the sign from the dropdown
-3. Record your version of the gesture (30+ samples recommended)
-4. Save — the classifier blends your data with the built-in model
+### Quick Start
 
-Calibrated signs show a blue dot in the sidebar. Click **↺** in the Sign Studio to reset to defaults.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/<your-username>/signbridge.git
+   cd signbridge
+   ```
 
-## 📤 Sharing Training Data
+2. **Open `index.html` in a browser:**
+   ```bash
+   # Option A: Direct file open
+   open index.html
 
-Training data can be exported and shared between devices:
+   # Option B: Local server (recommended for camera permissions)
+   npx serve .
+   # or
+   python3 -m http.server 8000
+   ```
 
-1. **Export** — click 📤 to download a JSON file with all your custom signs and calibrations
-2. **Import** — click 📥 on another device to load the file
-3. Continue training on top of imported data — contributions stack
+3. **Start an interview:**
+   - **Recruiter:** Select "Recruiter" role → complete onboarding → enter your name → click "Create Meeting" → share the meeting link
+   - **Candidate:** Open the shared link (which contains `?code=...`) → enter your name → wait for recruiter to start
 
-This enables collaborative model building: multiple people can each calibrate signs and merge their data for a model that works across different hands and environments.
+### Loading the Pre-Trained ASL Model
 
-## ⚙️ Detection Modes
+The repository includes a pre-trained model file (`signspeak-training-2026-02-25-12custom-4cal.json`) that extends the built-in vocabulary with 12 additional custom signs. To use it:
 
-The **Detection Rules** card in the sidebar lets you switch between:
+1. During an interview session, the **Recruiter** uploads the model via the model file input in the interview controls
+2. The model is automatically synced to the **Candidate's** session via the peer connection
+3. All 22 signs (10 built-in + 12 custom) become available immediately
 
-| Mode | Confidence | Cooldown | Best for |
-|------|-----------|----------|----------|
-| ⚡ Top Prediction | Any (always accepts) | 2.0s | Responsiveness, casual use |
-| 🎯 55% Threshold | ≥ 55% required | 1.8s | Accuracy, reducing false positives |
+Alternatively, place the model at `/api/model` on your server for automatic loading at session start.
 
-Both modes require the sign to be held for ~10 consecutive frames (~0.5s) to confirm.
+> **Note:** Custom models can also be created using the [SignSpeak](https://github.com/<your-username>/signspeak) training tool and exported in v3 JSON format.
 
-## 🏗️ How It Works
-
-```
-Webcam → MediaPipe Hands → 21 3D Landmarks → Feature Extraction (41 features) → Classifier → Transcript
-```
-
-**Feature extraction** computes 41 geometric features from the hand landmarks:
-- Fingertip-to-wrist distances (5)
-- Fingertip-to-palm distances (5)
-- Finger curl angles at PIP joints (5)
-- Finger extension ratios (5)
-- All inter-fingertip distances (10)
-- Thumb-to-finger distances (4)
-- Hand orientation — wrist Y, vertical span, horizontal span (3)
-- Finger spread angles (4)
-
-All distances are normalized by hand size for scale invariance.
-
-**Classification** uses weighted Euclidean distance to pre-computed sign centroids with a Gaussian kernel for scoring. Custom signs and calibrations add nearest-neighbor matching for higher accuracy.
-
-## 🌐 Browser Support
-
-| Browser | Webcam | Demo Mode |
-|---------|--------|-----------|
-| Chrome 90+ | ✅ | ✅ |
-| Edge 90+ | ✅ | ✅ |
-| Firefox | ⚠️ Limited | ✅ |
-| Safari | ⚠️ Limited | ✅ |
-
-Chrome or Edge recommended for best MediaPipe performance.
+---
 
 ## 📁 Project Structure
 
 ```
 signbridge/
-├── index.html    ← entire app (HTML + CSS + JS, self-contained)
-├── README.md     ← this file
-└── LICENSE        ← MIT
+├── index.html          # Entire application (HTML + CSS + JS)
+├── signspeak-training-2026-02-25-12custom-4cal.json
+│                       # Pre-trained ASL model (SignSpeak v3 format)
+└── README.md           # This file
 ```
 
-## ⚠️ Limitations
+The application is architected as a **single-file SPA** with four screens:
 
-- **Static gestures only** — recognizes hand shapes, not motion-based signs (which require temporal sequence modeling)
-- **Single hand primary** — classifier uses the first detected hand; two-hand signs are approximated
-- **Synthetic training data** — built-in centroids are based on idealized gesture geometry, not real signer data. Calibration significantly improves accuracy for your specific setup
-- **No fingerspelling** — individual letter recognition (A-Z) is not included in the current vocabulary
+| Screen | Purpose |
+|---|---|
+| **Onboarding** | Role selection, tutorial walkthrough, permission grants |
+| **Lobby** | Device preview, name entry, meeting creation/joining |
+| **Interview** | Video call with ASL/STT overlays, transcript, and chat |
+| **Thank You** | Post-session feedback screen |
 
-## 🙏 Acknowledgments
+---
 
-- [MediaPipe Hands](https://google.github.io/mediapipe/solutions/hands.html) — Google's real-time hand tracking
-- ASL gesture references from the Deaf community and educational resources
+## 🤖 Pre-Trained ASL Model
+
+The included model file (`signspeak-training-2026-02-25-12custom-4cal.json`) is a **SignSpeak v3** export trained on 2026-02-25. It contains:
+
+### 12 Custom Signs (6,495 total training samples)
+
+| Sign | Training Samples | Description |
+|---|---|---|
+| `Name` | 523 | Fingerspelled / custom gesture |
+| `G` | 340 | ASL letter G |
+| `I` | 350 | ASL letter I |
+| `T` | 360 | ASL letter T |
+| `A` | 533 | ASL letter A |
+| `My` | 834 | Possessive pronoun |
+| `You` | 333 | Pointing pronoun |
+| `Work` | 698 | Common interview vocabulary |
+| `Article` | 898 | Domain-specific sign |
+| `Write` | 733 | Action verb |
+| `Daily` | 227 | Frequency descriptor |
+| `Three` | 666 | Number sign |
+
+### 4 Calibrated Built-in Signs (1,298 calibration samples)
+
+| Sign | Calibration Samples | Effect |
+|---|---|---|
+| `Hello` | 230 | Improved accuracy via modified centroid |
+| `Thank You` | 591 | Improved accuracy via modified centroid |
+| `Yes` | 261 | Improved accuracy via modified centroid |
+| `Good` | 216 | Improved accuracy via modified centroid |
+
+### Combined Vocabulary (with model loaded)
+
+When this model is loaded, SignBridge recognizes **22 total signs**: the 10 built-in signs (`Hello`, `Thank You`, `Yes`, `No`, `Please`, `Sorry`, `Help`, `I Love You`, `Good`, `Stop`) plus the 12 custom signs listed above. Four of the built-in signs also benefit from recalibrated centroids for higher recognition accuracy.
+
+### Model Format
+
+The JSON file follows the **SignSpeak v3** schema:
+
+```jsonc
+{
+  "version": 3,
+  "exportDate": "2026-02-25T00:53:49.179Z",
+  "customSigns": {
+    "<SignName>": {
+      "centroid": [/* 41-dimensional feature vector */],
+      "samples": [/* array of 41-d training samples */]
+    }
+  },
+  "modifiedCentroids": {
+    "<BuiltInSignName>": [/* recalibrated 41-d centroid */]
+  },
+  "calibrations": {
+    "<BuiltInSignName>": [/* array of 41-d calibration samples */]
+  }
+}
+```
+
+Each feature vector (41 dimensions) encodes fingertip distances, joint angles, inter-finger distances, palm geometry, and hand orientation extracted by MediaPipe Hands.
+
+---
+
+## 🔧 Configuration
+
+### STUN Servers
+
+The default configuration uses Google's public STUN servers:
+
+```javascript
+iceServers: [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' }
+]
+```
+
+For production use behind restrictive firewalls, consider adding a TURN server.
+
+### ASL Recognition Parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `HOLD_FRAMES` | `6` | Consecutive frames required to confirm a sign |
+| `COOLDOWN` | `1500` ms | Minimum time between repeated detections of the same sign |
+| `SMOOTH_WINDOW` | `4` | Number of frames for temporal smoothing |
+| `minDetectionConfidence` | `0.7` | MediaPipe hand detection threshold |
+| `minTrackingConfidence` | `0.5` | MediaPipe hand tracking threshold |
+
+---
+
+## ⚠️ Known Limitations
+
+- **Speech-to-Text** requires Chrome or a Chromium-based browser (Web Speech API dependency)
+- **ASL recognition** is gesture-based (static signs only); it does not capture motion-based or facial-expression signs
+- **Peer-to-peer** connections may fail behind symmetric NATs without a TURN server
+- **No persistent storage** — transcripts are lost when the session ends
+- **Single-page file** — scaling to a multi-file architecture is recommended for production
+
+---
+
+## 🗺 Roadmap
+
+- [ ] Add TURN server support for reliable NAT traversal
+- [ ] Expand ASL vocabulary beyond 10 built-in signs
+- [ ] Support motion-based and two-handed ASL signs
+- [ ] Transcript export (PDF/TXT)
+- [ ] Session recording with consent
+- [ ] Multi-language STT support
+- [ ] Mobile-optimized layout improvements
+
+---
 
 ## 📄 License
 
-MIT — use it however you like.
+This project is open source. See [LICENSE](LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [MediaPipe](https://google.github.io/mediapipe/) by Google for hand-tracking (Lugaresi et al., 2019)
+- [PeerJS](https://peerjs.com/) for simplified WebRTC peer-to-peer connections
+- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) for browser-native speech recognition
+
+### References
+
+- Lugaresi, C., Tang, J., Nash, H., McClanahan, C., Uboweja, E., Hays, M., Zhang, F., Chang, C., Yong, M. G., Lee, J., Chang, W., Hua, W., Georg, M., & Grundmann, M. (2019). MediaPipe: A framework for building perception pipelines. *arXiv preprint arXiv:1906.08172*. https://arxiv.org/abs/1906.08172
+- Mozilla Developer Network. (n.d.). Web Speech API. *MDN Web Docs*. https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API
