@@ -23,7 +23,7 @@ A real-time American Sign Language (ASL) to text translator that runs entirely i
 
 Visit the deployed site on Netlify — webcam works over HTTPS with no setup:
 
-👉 https://your-site.netlify.app
+👉 [https://signbridgev1.netlify.app](https://signbridgev1.netlify.app/)
 
 ### Option 2: Local server
 
